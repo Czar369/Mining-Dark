@@ -1,61 +1,90 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-#  Bitcoin Balance Scanner Pro — Configuration
+#  Mining-Dark - Configuration
+#
+#  Written by `mining-dark gui` (Settings dialog) and read by every command.
+#  Safe to edit by hand - the GUI reloads it on open.
+#
+#  All paths are resolved by the `mining_dark.paths` module.  Leaving path
+#  fields blank ("") uses the defaults inside <project_root>/data/.
+#  Override MINING_DARK_DATA_DIR to relocate every data folder at once.
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# ----- Key generation and balance checking -----------------------------------
+#   mode                 "random" (aleatorias) | "hd" (BIP32/44/49/84/86)
+#   workers              async workers checking balances in parallel (1-512)
+#   queue_size           internal key queue - memory vs throughput
+#   address_types        p2pkh | p2pkh_uncompressed | p2sh_p2wpkh
+#                        p2wpkh | p2wsh | p2tr
+#   min_balance_satoshis only save wallets above this confirmed balance
+
 scanner:
-  # Key generation mode: "random" | "hd"
-  mode: "random"
-
-  # Number of async worker tasks checking balances in parallel
-  workers: 10
-
-  # Internal key-generation queue size (tune for memory vs throughput)
+  mode: random
+  workers: 71
   queue_size: 500
-
-  # Address types to generate and check for every private key.
-  # Options: p2pkh | p2pkh_uncompressed | p2sh_p2wpkh | p2wpkh | p2wsh | p2tr
   address_types:
-    - p2pkh
-    - p2pkh_uncompressed
-    - p2sh_p2wpkh
-    - p2wpkh
-    - p2wsh
-    - p2tr
-
-  # Only save wallets whose CONFIRMED balance (satoshis) exceeds this threshold
+  - p2pkh
+  - p2pkh_uncompressed
+  - p2sh_p2wpkh
+  - p2wpkh
+  - p2wsh
+  - p2tr
   min_balance_satoshis: 0
 
+# ----- HD mode only (scanner.mode = "hd") ------------------------------------
+#   derivation_paths     templates; {i} is replaced by the child index
+#   child_count          child keys derived per master seed (BIP44 gap = 20)
+
 hd_wallet:
-  # Used only when scanner.mode = "hd"
   derivation_paths:
-    - "m/44'/0'/0'/0/{i}"   # BIP44 Legacy
-    - "m/49'/0'/0'/0/{i}"   # BIP49 Nested SegWit
-    - "m/84'/0'/0'/0/{i}"   # BIP84 Native SegWit
-    - "m/86'/0'/0'/0/{i}"   # BIP86 Taproot
-  # Number of child keys to derive per master key (gap limit padrão = 20)
+  - m/49'/0'/0'/0/{i}
+  - m/84'/0'/0'/0/{i}
+  - m/86'/0'/0'/0/{i}
   child_count: 20
 
+# ----- Where found wallets are written ---------------------------------------
+#   found_wallets_dir    empty = data/found_wallets/
+#   save_csv             also append to a rolling summary.csv
+#
+#   WARNING: these files contain the PRIVATE KEYS of anything found.
+
 output:
-  # Directory for wallets found with balance
-  found_wallets_dir: "found_wallets"
-  # Also save a summary CSV
+  found_wallets_dir: ''
   save_csv: true
-  # Pretty-print JSON files
   json_indent: 2
 
+# ----- Loguru sinks ----------------------------------------------------------
+#   level                TRACE | DEBUG | INFO | WARNING | ERROR
+#   logs_dir             empty = data/logs/
+
 logging:
-  # Log level: TRACE | DEBUG | INFO | WARNING | ERROR
-  level: "INFO"
-  logs_dir: "logs"
-  # Max log file size before rotation
-  rotation: "50 MB"
-  # How long to keep old log files
-  retention: "7 days"
+  level: INFO
+  logs_dir: ''
+  rotation: 50 MB
+  retention: 7 days
+
+# ----- Local UTXO database ---------------------------------------------------
+#   db_file              empty = data/utxo/utxo.db
+#
+#   The Bitcoin Core datadir is not configurable here: the node always runs
+#   with -datadir=data/bitcoin-core/.  Set MINING_DARK_DATA_DIR to move the
+#   whole data/ tree, node included.
+
+utxo:
+  db_file: ''
+
+# ----- Interfaces ------------------------------------------------------------
+#   refresh_fps          terminal dashboard refresh rate
+#   recent_table_rows    rows in the terminal "recent addresses" table
+#   theme                terminal dashboard: "dark" | "light"
+#   language             interface language, window and CLI: "pt" | "en"
+#                        (generated files stay in English either way)
+#   palette              GUI accent: "matrix" | "amber" | "ice"
+#   font_scale           GUI font multiplier for HiDPI screens
 
 ui:
-  # Refresh rate of the live dashboard (frames per second)
   refresh_fps: 4
-  # Number of recent addresses to show in the live table
   recent_table_rows: 15
-  # Theme: "dark" | "light"
-  theme: "dark"
+  theme: dark
+  language: en
+  palette: amber
+  font_scale: 1.14

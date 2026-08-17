@@ -1,33 +1,62 @@
-# ── Virtual environment ───────────────────────────────────────────────────────
+# ── Virtual environments ──────────────────────────────────────────────────────
 .venv/
 venv/
 env/
 
-# ── Python cache ──────────────────────────────────────────────────────────────
+# ── Python cache and build artefacts ──────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 .Python
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# ── Logs (keep directory via .gitkeep) ───────────────────────────────────────
-logs/*.log
-logs/*.log.*
+# ── Runtime data (everything under data/ is either huge or private) ──────────
+# Keep the folder scaffolding (.gitkeep) but ignore every real file inside.
+data/bitcoin-core/*
+!data/bitcoin-core/.gitkeep
 
-# ── Scanner output (keep directory via .gitkeep) ──────────────────────────────
-found_wallets/*.json
-found_wallets/*.csv
-found_wallets/*.txt
+data/utxo/*
+!data/utxo/.gitkeep
 
-# ── UTXO data (Bitcoin Core exports — can be very large) ─────────────────────
-utxo_data/*
-!utxo_data/.gitkeep
-utxo_dump_tmp.csv
+data/logs/*
+!data/logs/.gitkeep
+
+data/found_wallets/*
+!data/found_wallets/.gitkeep
+
+# assumeutxo .dat files - ~9,4 GB each, re-downloadable, never commit one.
+data/snapshots/*
+!data/snapshots/.gitkeep
+
+# Wallets rescued when the normal save fails.  FileManager keeps them out of
+# the repository on purpose, but a stray copy must never become committable:
+# they carry private keys in plain text.
+EMERGENCY_wallet_*.txt
+**/EMERGENCY_wallet_*.txt
+
+# ── Legacy paths from v1.0 (kept in case anyone still has them) ──────────────
+# Anchored with a leading slash: unanchored `logs/` matches at ANY depth, so it
+# also swallowed data/logs/ and data/found_wallets/ - and git cannot re-include
+# a file whose parent directory is excluded, so the !data/logs/.gitkeep rule
+# above was silently dead and those folders never reached a fresh clone.
+/logs/
+/found_wallets/
+/utxo_data/
 
 # ── Config overrides with sensitive data ─────────────────────────────────────
 config.local.yaml
 .env
 *.env
+
+# One-time backup save_settings() drops beside config.yaml (and any other .bak).
+# Not sensitive, but repo clutter that should not be committed.
+*.bak
 
 # ── OS / editor artefacts ────────────────────────────────────────────────────
 .DS_Store
@@ -36,6 +65,3 @@ Thumbs.db
 *.swo
 .idea/
 .vscode/
-*.egg-info/
-dist/
-build/

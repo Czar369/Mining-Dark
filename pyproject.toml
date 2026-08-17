@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mining-dark"
+version = "1.1.0"
+description = "Bitcoin Balance Scanner Pro - educational Bitcoin cryptography tool"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Czar" }]
+keywords = ["bitcoin", "cryptography", "secp256k1", "education", "research"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security :: Cryptography",
+]
+
+dependencies = [
+    "coincurve>=18.0.0",
+    "base58>=2.1.1",
+    "mnemonic>=0.21",
+    "aiofiles>=23.2.1",
+    "rich>=13.7.1",
+    "typer>=0.12.0",
+    "loguru>=0.7.2",
+    "pyyaml>=6.0.1",
+    "pydantic>=2.6.0",
+    "pycryptodome>=3.19",
+]
+
+[project.optional-dependencies]
+gui = [
+    "dearpygui>=2.0",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "mypy>=1.9",
+]
+
+[project.scripts]
+mining-dark = "mining_dark.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/Jota-btc/Mining-Dark"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+mining_dark = ["py.typed"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "PL"]
+# PLC0415: tests deliberately import heavy/side-effectful modules (GUI, node)
+# inside the test body to keep pytest collection light - the project convention.
+ignore = ["PLR0913", "E501", "PLC0415"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
